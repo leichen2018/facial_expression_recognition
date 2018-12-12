@@ -2,7 +2,13 @@ import csv
 import numpy as np
 import os
 import h5py
+from PIL import Image
+import argparse
 
+parser = argparse.ArgumentParser(description='preprocessing data')
+parser.add_argument('--crop', action="store_true")
+parser.add_argument('--resize', type=int, default=25)
+args = parser.parse_args()
 """
 Please unzip fer2013.tar before running the script.
 """
@@ -24,7 +30,16 @@ if __name__ == '__main__':
     image_np = []
     for image in images:
         image = np.array([int(p) for p in image.split(' ')], dtype=np.float32)
-        image_np.append(image)
+        
+        if args.crop:
+            ex_pil = Image.fromarray(image.reshape([48,48]).astype(np.uint8), 'L')
+            ex_pil = ex_pil.crop((10, 10, 45, 45))
+            ex_pil = ex_pil.resize((args.resize,args.resize),  resample=Image.BICUBIC)
+            ex_re = np.array(ex_pil).reshape(-1,).astype(np.float32)
+            image_np.append(ex_re)
+        else:
+            image_np.append(image)
+    
     image_np = np.stack(image_np)
 
     label_np = []
