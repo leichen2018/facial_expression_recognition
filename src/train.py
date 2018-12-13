@@ -34,7 +34,7 @@ def train(batch_idx, model, dataloader, device, optimizer):
     
     for i, (img, label) in enumerate(dataloader):
         img = img.to(device)
-        label = label.squeeze(1).to(device)
+        label = label.to(device)
 
         optimizer.zero_grad()
         output = model(img)
@@ -55,7 +55,7 @@ def test(batch_idx, model, dataloader, device):
         cnt = 0
         for img, label in dataloader:
             img = img.to(device)
-            label = label.squeeze(1).to(device)
+            label = label.to(device)
 
             output = model(img)
 
