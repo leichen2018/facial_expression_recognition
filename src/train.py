@@ -27,6 +27,9 @@ parser.add_argument('--epochs', default=5, type=int)
 parser.add_argument('--cuda', default=True, type=bool)
 parser.add_argument('--print_every', default=10, type=int)
 
+parser.add_argument('--pca', action="store_true")
+parser.add_argument('--kernel', default='rbf', type=str)
+
 args = parser.parse_args()
 
 def train(batch_idx, model, dataloader, device, optimizer):
@@ -68,11 +71,17 @@ def test(batch_idx, model, dataloader, device):
 
 if args.model_type.lower() == 'svm':
     from sklearn import svm
+    from sklearn.decomposition import PCA
     with h5py.File(args.train_data, 'r') as hf:
         images = np.array(hf['images'], dtype=np.float32)
         labels = np.array(hf['labels'])
     images = images / 255.0
     model = svm.SVC(gamma='scale')
+    if args.pca:
+        print('Use PCA...')
+        pca = PCA(n_components=2)
+        pca.fit(images)
+        images = pca.transform(images)
 
     print('Fitting SVM...')
     model.fit(images, labels)
@@ -82,6 +91,8 @@ if args.model_type.lower() == 'svm':
         test_images = np.array(hf['images'], dtype=np.float32)
         test_labels = np.array(hf['labels'])
     test_images = test_images / 255.0
+    if args.pca:
+        test_images = pca.transform(test_images)
     pred = model.predict(test_images)
     acc = np.equal(pred, test_labels).sum()
     print('Acc: %.3f (%d/%d)' % (acc / test_images.shape[0], acc, test_images.shape[0]))

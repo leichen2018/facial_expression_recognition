@@ -32,3 +32,4 @@ ipython_config.py
 data/fer2013/*
 data/fer2013.tar
 data/*.h5
+run.sh
