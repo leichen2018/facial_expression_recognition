@@ -76,10 +76,10 @@ if args.model_type.lower() == 'svm':
         images = np.array(hf['images'], dtype=np.float32)
         labels = np.array(hf['labels'])
     images = images / 255.0
-    model = svm.SVC(gamma='scale')
+    model = svm.SVC(gamma='scale', kernel=args.kernel)
     if args.pca:
         print('Use PCA...')
-        pca = PCA(n_components=2)
+        pca = PCA(n_components='mle')
         pca.fit(images)
         images = pca.transform(images)
 
