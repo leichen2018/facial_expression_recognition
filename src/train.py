@@ -31,6 +31,7 @@ parser.add_argument('--pca', action="store_true")
 parser.add_argument('--kernel', default='rbf', type=str)
 parser.add_argument('--kernelpca', action="store_true")
 parser.add_argument('--pca_n', default=7, type=int)
+parser.add_argument('--ovr', action="store_true")
 
 args = parser.parse_args()
 
@@ -74,13 +75,17 @@ def test(batch_idx, model, dataloader, device):
 if args.model_type.lower() == 'svm':
     from sklearn import svm
     from sklearn.decomposition import PCA, KernelPCA
+    from sklearn.multiclass import OneVsRestClassifier
     with h5py.File(args.train_data, 'r') as hf:
         images = np.array(hf['images'], dtype=np.float32)
         labels = np.array(hf['labels'])
     images = images / 255.0
     images = images[:100, :]
     labels = labels[:100]
-    model = svm.SVC(gamma='scale', kernel=args.kernel, verbose=True)
+    if args.ovr:
+    	model = OneVsRestClassifier(svm.SVC(gamma='scale', kernel=args.kernel, verbose=True))
+    else:
+    	model = svm.SVC(gamma='scale', kernel=args.kernel, verbose=True)
     if args.pca or args.kernelpca:
         if args.pca:
             print('Use PCA...')
