@@ -6,7 +6,7 @@ import argparse
 import h5py
 import numpy as np
 from data import FacialDataset
-from cnn import LeNet
+import cnn
 
 parser = argparse.ArgumentParser(description='Facial Expression Recognition Kaggle Contest')
 
@@ -20,7 +20,7 @@ parser.add_argument('--batch_size', default=64, type=int)
 parser.add_argument('--model_type', default='SVM', type=str)
 
 parser.add_argument('--optimizer', default='sgd', type=str)
-parser.add_argument('--lr', default=0.1, type=float)
+parser.add_argument('--lr', default=1e-3, type=float)
 parser.add_argument('--momentum', default=0.9, type=float)
 
 parser.add_argument('--epochs', default=5, type=int)
@@ -40,11 +40,11 @@ def train(batch_idx, model, dataloader, device, optimizer):
     
     for i, (img, label) in enumerate(dataloader):
         img = img.to(device)
-        label = label.to(device)
+        label = label.long().to(device)
 
         optimizer.zero_grad()
         output = model(img)
-        loss = F.nll_loss(output, label)
+        loss = F.cross_entropy(output, label)
         loss.backward()
         optimizer.step()
 
@@ -112,7 +112,7 @@ if args.model_type.lower() == 'svm':
     acc = np.equal(pred, test_labels).sum()
     print('Acc: %.3f (%d/%d)' % (acc / test_images.shape[0], acc, test_images.shape[0]))
 
-elif args.model_type.lower() == 'cnn':
+else:
     train_dataset = FacialDataset(args.train_data, args.img_height, args.img_width)
     test_dataset = FacialDataset(args.test_data, args.img_height, args.img_width)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, \
@@ -120,7 +120,18 @@ elif args.model_type.lower() == 'cnn':
     test_dataloader = torch.utils.data.DataLoader(test_dataset, \
             batch_size=args.batch_size, shuffle=False)
     
-    model = LeNet()
+    if args.model_type == 'vgg11':
+        model = cnn.vgg11()
+    elif args.model_type == 'vgg11_bn':
+        model = cnn.vgg11_bn()
+    if args.model_type == 'vgg13':
+        model = cnn.vgg13()
+    elif args.model_type == 'vgg13_bn':
+        model = cnn.vgg13_bn()
+    elif args.model_type == 'vgg16':
+        model = cnn.vgg16()
+    elif args.model_type == 'fer_vgg13':
+        model = cnn.fer_vgg13_bn()
     print(model)
 
     if args.cuda:
