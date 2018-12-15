@@ -78,14 +78,16 @@ if args.model_type.lower() == 'svm':
         images = np.array(hf['images'], dtype=np.float32)
         labels = np.array(hf['labels'])
     images = images / 255.0
-    model = svm.SVC(gamma='scale', kernel=args.kernel)
+    images = images[:100, :]
+    labels = labels[:100]
+    model = svm.SVC(gamma='scale', kernel=args.kernel, verbose=True)
     if args.pca or args.kernelpca:
         if args.pca:
             print('Use PCA...')
             pca = PCA(n_components=args.pca_n)
         if args.kernelpca:
             print('Use Kenerl PCA...')
-            pca = KernelPCA(n_components=args.pca_n, kernel=args.kernel, verbose=True)
+            pca = KernelPCA(n_components=args.pca_n, kernel=args.kernel)
         pca.fit(images)
         images = pca.transform(images)
 
@@ -97,6 +99,8 @@ if args.model_type.lower() == 'svm':
         test_images = np.array(hf['images'], dtype=np.float32)
         test_labels = np.array(hf['labels'])
     test_images = test_images / 255.0
+    test_images = test_images[:100, :]
+    test_labels = test_labels[:100]
     if args.pca or args.kernelpca:
         test_images = pca.transform(test_images)
     pred = model.predict(test_images)
