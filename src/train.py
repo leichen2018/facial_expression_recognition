@@ -29,6 +29,8 @@ parser.add_argument('--print_every', default=10, type=int)
 
 parser.add_argument('--pca', action="store_true")
 parser.add_argument('--kernel', default='rbf', type=str)
+parser.add_argument('--kernelpca', action="store_true")
+parser.add_argument('--pca_n', default=7, type=int)
 
 args = parser.parse_args()
 
@@ -71,15 +73,19 @@ def test(batch_idx, model, dataloader, device):
 
 if args.model_type.lower() == 'svm':
     from sklearn import svm
-    from sklearn.decomposition import PCA
+    from sklearn.decomposition import PCA, KernelPCA
     with h5py.File(args.train_data, 'r') as hf:
         images = np.array(hf['images'], dtype=np.float32)
         labels = np.array(hf['labels'])
     images = images / 255.0
     model = svm.SVC(gamma='scale', kernel=args.kernel)
-    if args.pca:
-        print('Use PCA...')
-        pca = PCA(n_components='mle')
+    if args.pca or args.kernelpca:
+        if args.pca:
+            print('Use PCA...')
+            pca = PCA(n_components=args.pca_n)
+        if args.kernelpca:
+            print('Use Kenerl PCA...')
+            pca = KernelPCA(n_components=args.pca_n, kernel=args.kernel, verbose=True)
         pca.fit(images)
         images = pca.transform(images)
 
@@ -91,11 +97,12 @@ if args.model_type.lower() == 'svm':
         test_images = np.array(hf['images'], dtype=np.float32)
         test_labels = np.array(hf['labels'])
     test_images = test_images / 255.0
-    if args.pca:
+    if args.pca or args.kernelpca:
         test_images = pca.transform(test_images)
     pred = model.predict(test_images)
     acc = np.equal(pred, test_labels).sum()
     print('Acc: %.3f (%d/%d)' % (acc / test_images.shape[0], acc, test_images.shape[0]))
+
 elif args.model_type.lower() == 'cnn':
     train_dataset = FacialDataset(args.train_data, args.img_height, args.img_width)
     test_dataset = FacialDataset(args.test_data, args.img_height, args.img_width)
