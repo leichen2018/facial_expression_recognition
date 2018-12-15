@@ -145,3 +145,4 @@ else:
     for i in range(args.epochs):
         train(i, model, train_dataloader, device, optimizer)
         test(i, model, test_dataloader, device)
+        torch.save(model.state_dict(), 'checkpoint/model_%d.pth' % i)
