@@ -25,8 +25,8 @@ with h5py.File('../data/train.h5', 'r') as hf:
     labels = np.array(hf['labels'])
     
 images_origin = images_origin / 255.0
-images_origin = images_origin[:300,:]
-labels = labels[:300]
+images_origin = images_origin
+labels = labels
 
 model = svm.LinearSVC()
 
@@ -56,8 +56,8 @@ with h5py.File('../data/public_test.h5', 'r') as hf:
     test_labels = np.array(hf['labels'])
 test_images = test_images / 255.0
 
-test_images = test_images[:10, :]
-test_labels = test_labels[:10]
+test_images = test_images
+test_labels = test_labels
 
 if use_pca:
     test_images = pca.transform(test_images)
