@@ -80,8 +80,8 @@ if args.model_type.lower() == 'svm':
         images = np.array(hf['images'], dtype=np.float32)
         labels = np.array(hf['labels'])
     images = images / 255.0
-    images = images[:100, :]
-    labels = labels[:100]
+    images = images
+    labels = labels
     if args.ovr:
     	model = OneVsRestClassifier(svm.SVC(gamma='scale', kernel=args.kernel, verbose=True))
     else:
@@ -104,8 +104,8 @@ if args.model_type.lower() == 'svm':
         test_images = np.array(hf['images'], dtype=np.float32)
         test_labels = np.array(hf['labels'])
     test_images = test_images / 255.0
-    test_images = test_images[:100, :]
-    test_labels = test_labels[:100]
+    test_images = test_images
+    test_labels = test_labels
     if args.pca or args.kernelpca:
         test_images = pca.transform(test_images)
     pred = model.predict(test_images)
