@@ -132,6 +132,16 @@ else:
         model = cnn.vgg16()
     elif args.model_type == 'fer_vgg13':
         model = cnn.fer_vgg13_bn()
+    elif args.model_type == 'fer_resnet18':
+        model = cnn.fer_resnet18()
+    elif args.model_type == 'fer_resnet34':
+        model = cnn.fer_resnet34()
+    elif args.model_type == 'fer_resnet50':
+        model = cnn.fer_resnet50()
+    elif args.model_type == 'fer_resnet101':
+        model = cnn.fer_resnet101()
+    elif args.model_type == 'fer_resnet152':
+        model = cnn.fer_resnet152()
     print(model)
 
     if args.cuda:
@@ -150,4 +160,4 @@ else:
     for i in range(args.epochs):
         train(i, model, train_dataloader, device, optimizer)
         test(i, model, test_dataloader, device)
-        torch.save(model.state_dict(), 'checkpoint/model_%d.pth' % i)
+        torch.save(model.state_dict(), '../checkpoint/model_%d.pth' % i)
