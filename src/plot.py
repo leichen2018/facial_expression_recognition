@@ -25,8 +25,8 @@ with h5py.File('../data/train.h5', 'r') as hf:
     labels = np.array(hf['labels'])
     
 images_origin = images_origin / 255.0
-images_origin = images_origin[:300,:]
-labels = labels[:300]
+images_origin = images_origin
+labels = labels
 
 model = svm.LinearSVC()
 
@@ -56,8 +56,8 @@ with h5py.File('../data/public_test.h5', 'r') as hf:
     test_labels = np.array(hf['labels'])
 test_images = test_images / 255.0
 
-test_images = test_images[:10, :]
-test_labels = test_labels[:10]
+test_images = test_images
+test_labels = test_labels
 
 if use_pca:
     test_images = pca.transform(test_images)
@@ -74,14 +74,38 @@ else:
 
 print(b.shape)
 
-
-for i in range(b.shape[0]):
-    I = b[i]
+for i in range(test_images.shape[0]):
+    I = b[test_labels[i]].copy()
+    I = I * test_images[i]
     I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
     I *= 255.0
     I = I.reshape([48,48]).astype(np.uint8)
-    heatmap = cv2.applyColorMap(I, cv2.COLORMAP_JET)
-    ori = images_origin[image_maps[i]].reshape([48,48])
+    ori = test_images[i].reshape([48,48])
     ori = (ori * 255.0).astype(np.uint8)
+    heatmap = cv2.applyColorMap(I, cv2.COLORMAP_JET)
     result = heatmap * 0.3 + np.stack((ori,)*3, axis=-1) * 0.5
-    cv2.imwrite(directory + str(i) + '_' + maps[i] + '.png',result)
+    cv2.imwrite(directory + str(i) + '_' + maps[test_labels[i]] + '.png',result)
+    if pred[i] != test_labels[i]:
+        j = pred[i]
+        I = b[j].copy()
+        I = I * test_images[i]
+        I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
+        I *= 255.0
+        I = I.reshape([48,48]).astype(np.uint8)
+        ori = test_images[i].reshape([48,48])
+        ori = (ori * 255.0).astype(np.uint8)
+        heatmap = cv2.applyColorMap(I, cv2.COLORMAP_JET)
+        result = heatmap * 0.3 + np.stack((ori,)*3, axis=-1) * 0.5
+        cv2.imwrite(directory + str(i) + '_wrong_predict_' + maps[j] + '.png',result)
+
+# for i in range(b.shape[0]):
+#     print()
+#     I = b[i]
+#     I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
+#     I *= 255.0
+#     I = I.reshape([48,48]).astype(np.uint8)
+#     heatmap = cv2.applyColorMap(I, cv2.COLORMAP_JET)
+#     ori = images_origin[image_maps[i]].reshape([48,48])
+#     ori = (ori * 255.0).astype(np.uint8)
+#     result = heatmap * 0.3 + np.stack((ori,)*3, axis=-1) * 0.5
+#     cv2.imwrite(directory + str(i) + '_' + maps[i] + '.png',result)
