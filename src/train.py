@@ -80,6 +80,8 @@ if args.model_type.lower() == 'svm':
         labels = np.array(hf['labels'])
     images = images / 255.0
     model = svm.SVC(gamma='scale', kernel=args.kernel, verbose=True, decision_function_shape=args.dec_func)
+    images = images
+    labels = labels
     if args.pca or args.kernelpca:
         if args.pca:
             print('Use PCA...')
@@ -98,6 +100,8 @@ if args.model_type.lower() == 'svm':
         test_images = np.array(hf['images'], dtype=np.float32)
         test_labels = np.array(hf['labels'])
     test_images = test_images / 255.0
+    test_images = test_images
+    test_labels = test_labels
     if args.pca or args.kernelpca:
         test_images = pca.transform(test_images)
     pred = model.predict(test_images)
@@ -124,6 +128,16 @@ else:
         model = cnn.vgg16()
     elif args.model_type == 'fer_vgg13':
         model = cnn.fer_vgg13_bn()
+    elif args.model_type == 'fer_resnet18':
+        model = cnn.fer_resnet18()
+    elif args.model_type == 'fer_resnet34':
+        model = cnn.fer_resnet34()
+    elif args.model_type == 'fer_resnet50':
+        model = cnn.fer_resnet50()
+    elif args.model_type == 'fer_resnet101':
+        model = cnn.fer_resnet101()
+    elif args.model_type == 'fer_resnet152':
+        model = cnn.fer_resnet152()
     print(model)
 
     if args.cuda:
@@ -142,3 +156,4 @@ else:
     for i in range(args.epochs):
         train(i, model, train_dataloader, device, optimizer)
         test(i, model, test_dataloader, device)
+        torch.save(model.state_dict(), '../checkpoint/model_%d.pth' % i)
