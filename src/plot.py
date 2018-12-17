@@ -5,6 +5,7 @@ from sklearn import svm
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import argparse
+import pickle
 
 parser = argparse.ArgumentParser(description='Facial Expression Recognition Feature Extraction')
 
@@ -17,8 +18,10 @@ use_pca = args.pca
 
 if args.pca:
     directory = 'svm_pca/' 
+    model_name = 'svm_pca'
 else:
     directory = 'svm/'
+    model_name = 'svm'
 
 with h5py.File('../data/train.h5', 'r') as hf:
     images_origin = np.array(hf['images'], dtype=np.float32)
@@ -98,6 +101,11 @@ for i in range(test_images_origin.shape[0]):
         heatmap = cv2.applyColorMap(I, cv2.COLORMAP_JET)
         result = heatmap * 0.3 + np.stack((ori,)*3, axis=-1) * 0.5
         cv2.imwrite(directory + str(i) + '_wrong_predict_' + maps[j] + '.png',result)
+
+print('Saving model...')
+pickle.dump(model, open('model/'+model_name, 'wb'))
+print('Done...')
+
 
 # for i in range(b.shape[0]):
 #     print()
