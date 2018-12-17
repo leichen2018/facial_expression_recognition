@@ -32,6 +32,7 @@ parser.add_argument('--kernel', default='rbf', type=str)
 parser.add_argument('--kernelpca', action="store_true")
 parser.add_argument('--pca_n', default=7, type=int)
 parser.add_argument('--dec_func', default='ovr', type=str)
+parser.add_argument('--step', default=15, type=int)
 
 args = parser.parse_args()
 
@@ -115,7 +116,8 @@ else:
             batch_size=args.batch_size, shuffle=True)
     test_dataloader = torch.utils.data.DataLoader(test_dataset, \
             batch_size=args.batch_size, shuffle=False)
-    
+    params_name = str(args.epochs)+'ep_'+str(args.lr)+'lr'
+
     if args.model_type == 'vgg11':
         model = cnn.vgg11()
     elif args.model_type == 'vgg11_bn':
@@ -148,12 +150,14 @@ else:
 
     if args.optimizer.lower() == 'sgd':
         optimizer = optim.SGD(model.parameters(),\
-                lr=args.lr, momentum=args.momentum, nesterov=True)
+                lr=args.lr, momentum=args.momentum, nesterov=True, weight_decay=5e-4)
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.step)
     elif args.optimizer.lower() == 'adam':
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-    os.mkdir('../checkpoint/%s' % args.)
+
     for i in range(args.epochs):
+        scheduler.step()
         train(i, model, train_dataloader, device, optimizer)
         test(i, model, test_dataloader, device)
-        torch.save(model.state_dict(), '../checkpoint/model_%d.pth' % i)
+        torch.save(model.state_dict(), ('../models/' + args.model_type + '/' + params_name + '/model_%d.pth') % i)

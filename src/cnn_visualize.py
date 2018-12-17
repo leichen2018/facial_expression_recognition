@@ -21,6 +21,7 @@ parser.add_argument('--batch_size', default=1, type=int)
 parser.add_argument('--model_type', default='fer_resnet18', type=str)
 parser.add_argument('--model_path', default='../checkpoint/model_0.pth', type=str)
 parser.add_argument('--cuda', default=True, type=bool)
+parser.add_argument('--idx', default=0, type=int)
 
 args = parser.parse_args()
 
@@ -66,7 +67,9 @@ label_dict = [
 hf = h5py.File(args.test_data)
 images = hf['images']
 labels = hf['labels']
-idx = random.randint(0, len(images) - 1)
+idx = args.idx
+#idx = random.randint(0, len(images) - 1)
+print(idx)
 ori_img = images[idx].reshape((48, 48))
 prep_img = torch.from_numpy(ori_img).float().to(device).view(1, 1, 48, 48)
 prep_img /= 255.0
@@ -99,11 +102,13 @@ logit = model(prep_img)
 h_x = F.softmax(logit, dim=1).detach().squeeze()
 probs, idx = h_x.sort(0, True)
 probs = probs.cpu().detach().numpy()
+print(idx)
 idx = idx.cpu().detach().numpy()
 
 print('{:.3f} -> {}'.format(probs[0], label_dict[idx[0]]))
 
-CAMs = returnCAM(features_blobs[0], weight_softmax, [idx[0]])
-heatmap = cv2.applyColorMap(cv2.resize(CAMs[0], (48, 48)), cv2.COLORMAP_JET)
-result = heatmap * 0.3 + np.stack((ori_img,)*3, axis=-1) * 0.5
-cv2.imwrite('visualization/CAM.jpg', result)
+for i in range(7):
+    CAMs = returnCAM(features_blobs[0], weight_softmax, [idx[i]])
+    heatmap = cv2.applyColorMap(cv2.resize(CAMs[0], (48, 48)), cv2.COLORMAP_JET)
+    result = heatmap * 0.3 + np.stack((ori_img,)*3, axis=-1) * 0.5
+    cv2.imwrite(str(i)+'_'+label_dict[idx[i]]+'.jpg', result)
