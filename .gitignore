@@ -35,5 +35,3 @@ data/*.h5
 run.sh
 outputs
 checkpoint/
-src/visualization/
-src/train_cnn.sh

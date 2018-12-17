@@ -156,7 +156,7 @@ else:
     elif args.optimizer.lower() == 'adam':
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-
+    os.mkdir('../checkpoint/%s' % args.)
     for i in range(args.epochs):
         train(i, model, train_dataloader, device, optimizer)
         test(i, model, test_dataloader, device)
