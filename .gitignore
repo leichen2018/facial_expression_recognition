@@ -35,3 +35,9 @@ data/*.h5
 run.sh
 outputs
 checkpoint/
+<<<<<<< HEAD
+=======
+src/visualization/
+src/train_cnn.sh
+src/plot.sh
+>>>>>>> 082dd6df92e1ef610d5abe1cfe54b9e10d9e1ea5
