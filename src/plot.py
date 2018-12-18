@@ -58,6 +58,8 @@ print('Predicting Testing Samples...')
 with h5py.File('../data/public_test.h5', 'r') as hf:
     test_images_origin = np.array(hf['images'], dtype=np.float32)
     test_labels = np.array(hf['labels'])
+
+
 test_images = normalize(test_images_origin)
 
 test_images = test_images
@@ -79,9 +81,9 @@ else:
 
 print(b.shape)
 
-for i in range(test_images_origin.shape[0]):
+for i in range(test_images.shape[0]):
     I = b[test_labels[i]].copy()
-    I = I * test_images_origin[i]
+    I = I * test_images[i]
     I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
     I *= 255.0
     I = I.reshape([48,48]).astype(np.uint8)
@@ -93,15 +95,16 @@ for i in range(test_images_origin.shape[0]):
     if pred[i] != test_labels[i]:
         j = pred[i]
         I = b[j].copy()
-        I = I * test_images_origin[i]
+        I = I * test_images[i]
         I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
         I *= 255.0
         I = I.reshape([48,48]).astype(np.uint8)
-        ori = test_images_origin[i].reshape([48,48])
-        ori = (ori * 255.0).astype(np.uint8)
+        ori = test_images_origin[i].reshape([48,48]).astype(np.uint8)
+        #ori = (ori * 255.0).astype(np.uint8)
         heatmap = cv2.applyColorMap(I, cv2.COLORMAP_JET)
         result = heatmap * 0.3 + np.stack((ori,)*3, axis=-1) * 0.5
         cv2.imwrite(directory + str(i) + '_wrong_predict_' + maps[j] + '.png',result)
+
 
 print('Saving model...')
 pickle.dump(model, open('model/'+model_name, 'wb'))
