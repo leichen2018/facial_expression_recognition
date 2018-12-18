@@ -58,15 +58,15 @@ print('Predicting Testing Samples...')
 with h5py.File('../data/public_test.h5', 'r') as hf:
     test_images_origin = np.array(hf['images'], dtype=np.float32)
     test_labels = np.array(hf['labels'])
-test_images_origin = test_images_origin / 255.0
+test_images = normalize(test_images_origin)
 
-test_images_origin = test_images_origin
+test_images = test_images
 test_labels = test_labels
 
 if use_pca:
-    test_images = pca.transform(test_images_origin)
+    test_images = pca.transform(test_images)
 else:
-    test_images = test_images_origin
+    test_images = test_images
 pred = model.predict(test_images)
 
 acc = np.equal(pred, test_labels).sum()
@@ -85,8 +85,8 @@ for i in range(test_images_origin.shape[0]):
     I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
     I *= 255.0
     I = I.reshape([48,48]).astype(np.uint8)
-    ori = test_images_origin[i].reshape([48,48])
-    ori = (ori * 255.0).astype(np.uint8)
+    ori = test_images_origin[i].reshape([48,48]).astype(np.uint8)
+    #ori = (ori * 255.0).astype(np.uint8)
     heatmap = cv2.applyColorMap(I, cv2.COLORMAP_JET)
     result = heatmap * 0.3 + np.stack((ori,)*3, axis=-1) * 0.5
     cv2.imwrite(directory + str(i) + '_' + maps[test_labels[i]] + '.png',result)
