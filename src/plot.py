@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from sklearn import svm
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 import argparse
 import pickle
@@ -26,8 +27,8 @@ else:
 with h5py.File('../data/train.h5', 'r') as hf:
     images_origin = np.array(hf['images'], dtype=np.float32)
     labels = np.array(hf['labels'])
-    
-images_origin = images_origin / 255.0
+   
+images_origin = normalize(images_origin)
 images_origin = images_origin
 labels = labels
 
