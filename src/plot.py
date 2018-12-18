@@ -60,15 +60,15 @@ with h5py.File('../data/public_test.h5', 'r') as hf:
     test_labels = np.array(hf['labels'])
 
 
-test_images = normalize(test_images_origin)
+test_images_n = normalize(test_images_origin)
 
-test_images = test_images
+test_images_n = test_images_n
 test_labels = test_labels
 
 if use_pca:
-    test_images = pca.transform(test_images)
+    test_images = pca.transform(test_images_n)
 else:
-    test_images = test_images
+    test_images = test_images_n
 pred = model.predict(test_images)
 
 acc = np.equal(pred, test_labels).sum()
@@ -83,7 +83,7 @@ print(b.shape)
 
 for i in range(test_images.shape[0]):
     I = b[test_labels[i]].copy()
-    I = I * test_images[i]
+    I = I * test_images_n[i]
     I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
     I *= 255.0
     I = I.reshape([48,48]).astype(np.uint8)
@@ -95,7 +95,7 @@ for i in range(test_images.shape[0]):
     if pred[i] != test_labels[i]:
         j = pred[i]
         I = b[j].copy()
-        I = I * test_images[i]
+        I = I * test_images_n[i]
         I = (I - np.min(I)) / (np.max(I) - np.min(I)) # normalization
         I *= 255.0
         I = I.reshape([48,48]).astype(np.uint8)
