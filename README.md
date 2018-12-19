@@ -1,6 +1,6 @@
 ## Facial Expression Recognition
 
-This is a repo for CSCI-GA 2265 Foundations of Machine Learning course project, **Face Expression Recognition: SVM vs. Deep Neural Networks**.
+This is a repo for CSCI-GA 2566 Foundations of Machine Learning course project, **Activation Map Comparison between SVM and CNN**.
 
 Deep learning has derived several state-of-the-art methods in computer vision
 tasks in recent years. This project’s purpose is to re-introduce statistical learning methods,
